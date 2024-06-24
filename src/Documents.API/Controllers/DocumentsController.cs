@@ -20,18 +20,18 @@ public class DocumentsController : ControllerBase
     {
         using Stream stream = file.OpenReadStream();
 
-        var fileId = await _blobService.UploadAsync(stream, file.ContentType, cancellationToken);
+        await _blobService.UploadAsync(stream, file.FileName, file.ContentType, cancellationToken);
 
-        return Ok(fileId);
+        return Ok(file.FileName);
     }
 
     [HttpGet("{fileId}")]
-    public async Task<IActionResult> DownloadDocument(Guid fileId, CancellationToken cancellationToken)
+    public async Task<IActionResult> DownloadDocument([FromRoute]Guid fileId, CancellationToken cancellationToken)
     {
         try
         {
             var fileResponse = await _blobService.DownloadAsync(fileId, cancellationToken);
-
+             
             return File(fileResponse.Stream, fileResponse.ContentType);
         }
         catch (RequestFailedException)
