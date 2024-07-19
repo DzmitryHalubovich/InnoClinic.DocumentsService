@@ -66,6 +66,5 @@ public static class WebApplicationBuilderExtention
             clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnectionString:blob"]!, preferMsi: true);
             clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnectionString:queue"]!, preferMsi: true);
         });
-
     }
 }

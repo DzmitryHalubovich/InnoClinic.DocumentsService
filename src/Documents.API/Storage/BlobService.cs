@@ -10,16 +10,17 @@ public class BlobService : IBlobService
 {
     private readonly BlobServiceClient _blobServiceClient;
 
-    public const string ContainerName  = "documents";
+    private readonly string _containerName;
 
-    public BlobService(BlobServiceClient blobServiceClient)
+    public BlobService(BlobServiceClient blobServiceClient, IConfiguration configuration)
     {
+        _containerName = configuration["BlobContainerName"]!;
         _blobServiceClient = blobServiceClient;
     }
 
     public async Task<string> UploadAsync(Stream stream, string fileName, string contentType, CancellationToken cancellationToken = default)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
         await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
@@ -32,7 +33,7 @@ public class BlobService : IBlobService
 
     public async Task DeleteAsync(Guid fileId, CancellationToken cancellationToken = default)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
         var blobClient = containerClient.GetBlobClient(fileId.ToString());
 
@@ -41,19 +42,23 @@ public class BlobService : IBlobService
 
     public async Task<FileResponse> DownloadAsync(Guid fileId, CancellationToken cancellationToken = default)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
         var blobClient = containerClient.GetBlobClient(fileId.ToString());
-
+        
         try
         {
             var response = await blobClient.DownloadContentAsync(cancellationToken: cancellationToken);
 
             return new FileResponse(response.Value.Content.ToStream(), response.Value.Details.ContentType);
         }
-        catch (RequestFailedException ex)
+        catch (RequestFailedException)
         {
-            throw new RequestFailedException(ex.Status, ex.Message);
+            throw;
+        }
+        catch
+        {
+            throw;
         }
     }
 }
