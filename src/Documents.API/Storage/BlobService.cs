@@ -17,7 +17,7 @@ public class BlobService : IBlobService
         _blobServiceClient = blobServiceClient;
     }
 
-    public async Task UploadAsync(Stream stream, string fileName, string contentType, CancellationToken cancellationToken = default)
+    public async Task<string> UploadAsync(Stream stream, string fileName, string contentType, CancellationToken cancellationToken = default)
     {
         var containerClient = _blobServiceClient.GetBlobContainerClient(ContainerName);
 
@@ -26,6 +26,8 @@ public class BlobService : IBlobService
         var blobClient = containerClient.GetBlobClient(fileName);
 
         await blobClient.UploadAsync(stream, new BlobHttpHeaders { ContentType = contentType }, cancellationToken: cancellationToken);
+
+        return blobClient.Uri.ToString();
     }
 
     public async Task DeleteAsync(Guid fileId, CancellationToken cancellationToken = default)

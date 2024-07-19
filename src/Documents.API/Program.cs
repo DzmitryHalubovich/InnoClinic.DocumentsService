@@ -1,21 +1,8 @@
-using Documents.API.Services;
-using Documents.API.Storage;
-using Microsoft.Extensions.Azure;
+using Documents.API.Extentions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAzureClients(clientBuilder =>
-{
-    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnectionString:blob"]!, preferMsi: true);
-    clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnectionString:queue"]!, preferMsi: true);
-});
-
-builder.Services.AddScoped<IBlobService, BlobService>();
+builder.ConfigureServices();
 
 var app = builder.Build();
 

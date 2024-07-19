@@ -20,9 +20,9 @@ public class DocumentsController : ControllerBase
     {
         using Stream stream = file.OpenReadStream();
 
-        await _blobService.UploadAsync(stream, file.FileName, file.ContentType, cancellationToken);
+        var fileUri = await _blobService.UploadAsync(stream, file.FileName, file.ContentType, cancellationToken);
 
-        return Ok(file.FileName);
+        return Ok(fileUri);
     }
 
     [HttpGet("{fileId}")]
